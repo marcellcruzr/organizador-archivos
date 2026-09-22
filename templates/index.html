@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Archivos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 1.5rem; }
+        .drop-zone {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1rem;
+        }
+        .drop-zone.hover { background-color: #e8f4f8; }
+        .drop-zone p { margin: 0; color: #7f8c8d; }
+        input[type="file"] { display: none; }
+        .btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #27ae60; }
+        .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        #results { margin-top: 1.5rem; }
+        .result-item {
+            background: #ecf0f1;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .folder-badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+        .disclaimer {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .disclaimer strong { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="container">
+        <h1>📁 Organizador de Archivos</h1>
+        
+        <form id="uploadForm">
+            <div class="drop-zone" id="dropZone">
+                <p>Arrastra y suelta tus archivos aquí o <br><strong>haz clic para seleccionar</strong></p>
+                <input type="file" id="fileInput" name="files" multiple>
+            </div>
+            <button type="submit" class="btn" id="submitBtn" disabled>Organizar Archivos</button>
+        </form>
+
+        <div id="results"></div>
+    </div>
+</div>
+
+<footer>
+    <div class="disclaimer">
+        <p><strong>⚠️ AVISO LEGAL:</strong> Desarrollado por <strong>Marcell Cruz</strong>. 
+        Cualquier distribución, reproducción o uso no autorizado de este software será acreedor a sanciones legales.</p>
+        <p style="margin-top: 0.5rem;">© 2026 Marcell Cruz. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const uploadForm = document.getElementById('uploadForm');
+    const resultsDiv = document.getElementById('results');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('hover');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('hover');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('hover');
+        fileInput.files = e.dataTransfer.files;
+        updateButtonState();
+    });
+
+    fileInput.addEventListener('change', updateButtonState);
+
+    function updateButtonState() {
+        submitBtn.disabled = fileInput.files.length === 0;
+    }
+
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        
+        for (let i = 0; i < fileInput.files.length; i++) {
+            formData.append('files', fileInput.files[i]);
+        }
+
+        submitBtn.textContent = 'Procesando...';
+        submitBtn.disabled = true;
+        resultsDiv.innerHTML = '';
+
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                data.files.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.innerHTML = `
+                        <span>${file.original}</span>
+                        <span class="folder-badge">${file.folder}</span>
+                    `;
+                    resultsDiv.appendChild(item);
+                });
+                fileInput.value = '';
+                updateButtonState();
+            }
+        } catch (error) {
+            resultsDiv.innerHTML = '<p style="color:red;">Error al subir los archivos.</p>';
+        } finally {
+            submitBtn.textContent = 'Organizar Archivos';
+            updateButtonState();
+        }
+    });
+</script>
+
+</body>
+</html>
