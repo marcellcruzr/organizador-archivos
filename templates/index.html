@@ -5,304 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizador de Archivos</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 2rem;
+            align-items: center;
+            padding: 20px;
         }
-
         .container {
             background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             width: 100%;
+            max-width: 600px;
         }
-
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-
-        .upload-area {
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 1.5rem; }
+        .drop-zone {
             border: 2px dashed #3498db;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 2rem;
             text-align: center;
-            margin-bottom: 1.5rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            margin-bottom: 1rem;
         }
-
-        .upload-area:hover {
-            background: #ecf0f1;
-            border-color: #2980b9;
-        }
-
-        .upload-area p {
-            color: #7f8c8d;
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-area .highlight {
-            color: #2c3e50;
-            font-weight: bold;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
+        .drop-zone p { color: #7f8c8d; }
+        input[type="file"] { display: none; }
         .btn {
-            background: #3498db;
+            background-color: #2ecc71;
             color: white;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 1rem;
             width: 100%;
-            transition: all 0.3s ease;
+            margin-bottom: 10px;
         }
-
-        .btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #results {
-            margin-top: 2rem;
-            padding: 1rem;
+        .btn:hover { background-color: #27ae60; }
+        .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .btn-secondary { background-color: #3498db; }
+        .btn-secondary:hover { background-color: #2980b9; }
+        .btn-download { background-color: #9b59b6; }
+        .btn-download:hover { background-color: #8e44ad; }
+        #results { margin-top: 1.5rem; }
+        .result-item {
             background: #ecf0f1;
-            border-radius: 8px;
-            display: none;
-        }
-
-        #results.show {
-            display: block;
-        }
-
-        .file-item {
-            background: white;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
+            padding: 10px;
+            margin-bottom: 8px;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
-
-        .file-name {
-            color: #2c3e50;
-            word-break: break-all;
-        }
-
-        .file-type {
+        .folder-badge {
             background: #3498db;
             color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
         }
-
-        .footer {
+        footer {
             margin-top: 2rem;
             text-align: center;
+            font-size: 0.85rem;
             color: #7f8c8d;
-            font-size: 0.9rem;
         }
-
-        .estructura-carpetas {
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .estructura-carpetas.show {
-            display: block;
-        }
-
-        .carpeta-item {
-            background: #ecf0f1;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-        }
-
-        .carpeta-item h4 {
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-
-        .carpeta-item ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .carpeta-item li {
-            padding: 5px 0;
-            color: #34495e;
-        }
-
-        .action-buttons {
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-
-        .action-buttons .btn {
-            margin-bottom: 10px;
-        }
-
-        .btn-ver {
-            background: #3498db;
-        }
-
-        .btn-descargar {
-            background: #9b59b6;
-        }
-
-        .btn-ver:hover {
-            background: #2980b9;
-        }
-
-        .btn-descargar:hover {
-            background: #8e44ad;
-        }
+        footer strong { color: #e74c3c; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📁 Organizador de Archivos</h1>
         
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <p>Arrastra y suelta tus archivos aquí o</p>
-            <p class="highlight">haz clic para seleccionar</p>
+        <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+            <p>Arrastra y suelta tus archivos aquí o<br><strong>haz clic para seleccionar</strong></p>
+            <input type="file" id="fileInput" name="files" multiple>
         </div>
         
-        <input type="file" id="fileInput" multiple accept=".txt,.doc,.docx,.pdf,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mp3,.wav,.zip,.rar">
-        
-        <button class="btn" id="organizarBtn" onclick="organizarArchivos()" disabled>
-            Organizar Archivos
-        </button>
-
-        <div class="action-buttons">
-            <button class="btn btn-ver" onclick="verCarpetas()">
-                📂 Ver Carpetas Organizadas
-            </button>
-            <button class="btn btn-descargar" onclick="descargarZIP()">
-                ⬇️ Descargar Todo Organizado (ZIP)
-            </button>
-        </div>
-
-        <div id="estructura-carpetas" class="estructura-carpetas">
-            <h3 style="color: #2c3e50; margin-bottom: 1rem;">📂 Estructura de Carpetas</h3>
-            <div id="contenido-carpetas"></div>
-        </div>
+        <button class="btn" id="submitBtn" onclick="uploadFiles()" disabled>Organizar Archivos</button>
+        <button class="btn btn-secondary" onclick="verCarpetas()">📂 Ver Carpetas</button>
+        <button class="btn btn-download" onclick="descargarZIP()">️ Descargar ZIP</button>
 
         <div id="results"></div>
 
-        <div class="footer">
-            <p>⚠️ <strong>AVISO LEGAL:</strong> Desarrollado por <strong>Marcell Cruz</strong>. Cualquier distribución, reproducción o uso no autorizado de este software será acreedor a sanciones legales.</p>
+        <footer>
+            <p><strong>⚠️ AVISO LEGAL:</strong> Desarrollado por <strong>Marcell Cruz</strong>. 
+            Cualquier distribución no autorizada será acreedora a sanciones legales.</p>
             <p>© 2026 Marcell Cruz. Todos los derechos reservados.</p>
-        </div>
+        </footer>
     </div>
 
     <script>
         const fileInput = document.getElementById('fileInput');
-        const organizarBtn = document.getElementById('organizarBtn');
-        const results = document.getElementById('results');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsDiv = document.getElementById('results');
 
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                organizarBtn.disabled = false;
-            } else {
-                organizarBtn.disabled = true;
-            }
+        fileInput.addEventListener('change', () => {
+            submitBtn.disabled = fileInput.files.length === 0;
         });
 
-        async function organizarArchivos() {
-            const files = fileInput.files;
-            if (files.length === 0) {
-                alert('Por favor selecciona al menos un archivo');
+        async function uploadFiles() {
+            if (fileInput.files.length === 0) {
+                alert('Selecciona archivos primero');
                 return;
             }
 
             const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                formData.append('archivos', files[i]);
+            for (let file of fileInput.files) {
+                formData.append('files', file);
             }
 
-            organizarBtn.disabled = true;
-            organizarBtn.textContent = 'Organizando...';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Procesando...';
+            resultsDiv.innerHTML = '';
 
             try {
-                const response = await fetch('/organizar', {
+                console.log('Enviando archivos...');
+                const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
 
+                console.log('Status:', response.status);
                 const data = await response.json();
+                console.log('Response:', data);
 
-                if (response.ok) {
-                    mostrarResultados(data.archivos);
+                if (data.success) {
+                    data.files.forEach(file => {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <span>${file.original}</span>
+                            <span class="folder-badge">${file.folder}</span>
+                        `;
+                        resultsDiv.appendChild(item);
+                    });
                     fileInput.value = '';
-                    organizarBtn.disabled = true;
+                    submitBtn.disabled = true;
                 } else {
-                    alert(data.error || 'Error al organizar los archivos');
+                    alert('Error: ' + (data.error || 'Error desconocido'));
                 }
             } catch (error) {
+                console.error('Error:', error);
                 alert('Error de conexión: ' + error.message);
             } finally {
-                organizarBtn.disabled = false;
-                organizarBtn.textContent = 'Organizar Archivos';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Organizar Archivos';
             }
-        }
-
-        function mostrarResultados(archivos) {
-            results.innerHTML = '';
-            
-            if (archivos.length === 0) {
-                results.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No se organizaron archivos</p>';
-                results.classList.add('show');
-                return;
-            }
-
-            let html = '<h3 style="color: #2c3e50; margin-bottom: 1rem;">✅ Archivos Organizados</h3>';
-            
-            for (const archivo of archivos) {
-                html += `
-                    <div class="file-item">
-                        <span class="file-name">${archivo.nombre_original}</span>
-                        <span class="file-type">${archivo.tipo}</span>
-                    </div>
-                `;
-            }
-
-            results.innerHTML = html;
-            results.classList.add('show');
         }
 
         async function verCarpetas() {
@@ -310,29 +162,19 @@
                 const response = await fetch('/ver-carpetas');
                 const carpetas = await response.json();
                 
-                const divEstructura = document.getElementById('estructura-carpetas');
-                const contenido = document.getElementById('contenido-carpetas');
-                
+                let html = '<h3 style="margin: 1rem 0;">📂 Carpetas:</h3>';
                 if (Object.keys(carpetas).length === 0) {
-                    contenido.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay archivos organizados aún</p>';
+                    html += '<p>No hay archivos organizados</p>';
                 } else {
-                    let html = '';
                     for (const [nombre, archivos] of Object.entries(carpetas)) {
-                        html += `
-                            <div class="carpeta-item">
-                                <h4>📁 ${nombre}</h4>
-                                <ul>
-                                    ${archivos.map(archivo => `<li>📄 ${archivo}</li>`).join('')}
-                                </ul>
-                            </div>
-                        `;
+                        html += `<div style="background:#ecf0f1; padding:10px; margin:5px 0; border-radius:5px;">`;
+                        html += `<strong>${nombre}:</strong> ${archivos.length} archivos`;
+                        html += `</div>`;
                     }
-                    contenido.innerHTML = html;
                 }
-                
-                divEstructura.classList.add('show');
+                resultsDiv.innerHTML = html;
             } catch (error) {
-                alert('Error al cargar las carpetas: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 
